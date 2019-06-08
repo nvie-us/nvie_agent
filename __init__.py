@@ -72,7 +72,7 @@ def index():
     server_name '''+env_name+''';
 
     location / {
-        proxy_pass http://localhost:'''+port+''';
+        proxy_pass http://localhost:'''+str(port)+''';
         proxy_set_header Host $host
     }
 }'''
