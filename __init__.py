@@ -83,7 +83,7 @@ def stop():
         db.session.delete(mapping_list)
         container.stop()
         db.session.commit()
-    except Exception e:
+    except Exception as e:
         return {'status':False}
     return {'status':True, 'container_id':container.id, 'container_name':container.name,'env_name':params['env_name']}
 
