@@ -71,6 +71,7 @@ def index():
     except Exception as e:
         print(e)
         return {'status':False}
+        print({'status':True,'container_id':container.id, 'container_name':container.name})
     return {'status':True,'container_id':container.id, 'container_name':container.name}
 
 @app.route('/stop', methods=['POST'])
