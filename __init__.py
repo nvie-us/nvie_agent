@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = FlaskAPI(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/aditya/Projects/nvie_agent/nvie.agent'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///home/ubunut/nvie.agent'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/ubuntu/nvie_agent/nvie.agent'
 client = docker.from_env()
 db = SQLAlchemy(app)
 
@@ -22,6 +22,7 @@ class ContainerPortMapping(db.Model):
 @app.route('/spawn', methods=['POST'])
 def index():
     params = request.data
+    print(params)
     port_list = ContainerPortMapping.query.with_entities(ContainerPortMapping.port).all()
     print(port_list)
     port = random.randrange(10000, 65534)
@@ -42,7 +43,7 @@ def index():
         print("Created Container")
     except Exception as e:
         return {'status':False}
-    return {'status':True,'container_id':container.id, 'container_name':container.name, "image_name":container.image.tags[0]}
+    return {'status':True,'container_id':container.id, 'container_name':container.name}
 
 @app.route('/stop', methods=['POST'])
 def stop():
@@ -52,7 +53,7 @@ def stop():
     db.session.delete(mapping_list)
     container.stop()
     db.session.commit()
-    return {'status':True, 'container_id':container.id, 'container_name':container.name, "image_name":container.image.tags[0],'env_name':params['env_name']}
+    return {'status':True, 'container_id':container.id, 'container_name':container.name,'env_name':params['env_name']}
 
 @app.route('/stop-all', methods=['GET'])
 def stopall():
@@ -61,7 +62,7 @@ def stopall():
         running_containers = []
         for i in containers:
             mapping_list = ContainerPortMapping.query.filter_by(container = i.id).first()
-            running_containers.append({'container_name':i.name, 'container_id':i.id, "image_name":i.image.tags[0], 'env_name':mapping_list.env_name})
+            running_containers.append({'container_name':i.name, 'container_id':i.id, 'env_name':mapping_list.env_name})
             db.session.delete(mapping_list)
             i.stop()
             db.session.commit()
@@ -78,7 +79,7 @@ def running():
         env_name = ""
         if mapping_list:
             env_name = mapping_list.env_name
-        running_containers.append({'container_name':i.name, 'container_id':i.id, "image_name":i.image.tags[0], 'env_name':env_name})
+        running_containers.append({'container_name':i.name, 'container_id':i.id, 'env_name':env_name})
     # container.stop()
     return {'status':True, 'running':running_containers}
 
