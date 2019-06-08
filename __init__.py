@@ -63,7 +63,7 @@ def index():
         proxy_set_header Host $host
     }
 }'''
-        with open("/etc/nginx/conf.d/"+env_name, "w") as file:
+        with open("/etc/nginx/conf.d/"+env_name+".conf", "w") as file:
             file.write(conf)
         subprocess.call(["sudo", "service", "nginx", "restart"])
         db.session.commit()
