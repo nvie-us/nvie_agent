@@ -76,12 +76,15 @@ def index():
 
 @app.route('/stop', methods=['POST'])
 def stop():
-    params = request.data
-    mapping_list = ContainerPortMapping.query.filter_by(env_name = params['env_name']).first()
-    container = client.containers.get(mapping_list.container)
-    db.session.delete(mapping_list)
-    container.stop()
-    db.session.commit()
+    try:
+        params = request.data
+        mapping_list = ContainerPortMapping.query.filter_by(env_name = params['env_name']).first()
+        container = client.containers.get(mapping_list.container)
+        db.session.delete(mapping_list)
+        container.stop()
+        db.session.commit()
+    except Exception e:
+        return {'status':False}
     return {'status':True, 'container_id':container.id, 'container_name':container.name,'env_name':params['env_name']}
 
 @app.route('/stop-all', methods=['GET'])
