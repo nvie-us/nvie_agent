@@ -60,9 +60,13 @@ def index():
             print('HERE?SDAS')
         else:
             return {'status':False, "desc":"Env Name not a valid env URL"}
+        print("7382")
         container = client.containers.run(params['image_name'], detach = True, ports = {str(params['port'])+"/tcp":port}, volumes= {str(path):{'bind': '/home/nvie', 'mode': 'rw'}})
+        print("7385")
         mapping = ContainerPortMapping(env_name = env_name, container = container.id, port = port, old_port = old_port)
+        print("73853")
         db.session.add(mapping)
+        print("73855")
         conf = '''
 server {
     listen 80;
