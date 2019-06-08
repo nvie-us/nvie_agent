@@ -32,41 +32,28 @@ class ContainerPortMapping(db.Model):
 def index():
     
     params = request.data
-    print(params)
     port_list = ContainerPortMapping.query.with_entities(ContainerPortMapping.port).all()
-    print(port_list)
     port = random.randrange(10000, 65534)
     while port in port_list:
         port = random.randrange(10000, 65534)
-    print(port)
     try:
-        print("Pulling art")
         old_port = params['port']
         env_name = params['env_name']
-        print("Pulling")
         client.images.pull(params['image_name'])
-        print("Pulled")
         path = ""
         if uri_validator(params['env_name']) and len(params['env_name'].split(".")) == 5:
-            print("HERE5")
             path = "/home/ubuntu/storage/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]+"-"+params['env_name'].split(".")[2]
             # path = "/Users/aditya/Projects/nvie_agent/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]
-            print(path)
             try:
                 os.mkdir(path)
                 subprocess.call(['sudo','chmod', '-R', "777", path])
             except FileExistsError as e1:
                 print(e1)
-            print('HERE?SDAS')
         else:
             return {'status':False, "desc":"Env Name not a valid env URL"}
-        print("7382")
         container = client.containers.run(params['image_name'], detach = True, ports = {str(params['port'])+"/tcp":port}, volumes= {str(path):{'bind': '/home/nvie', 'mode': 'rw'}})
-        print("7385")
         mapping = ContainerPortMapping(env_name = env_name, container = container.id, port = port, old_port = old_port)
-        print("73853")
         db.session.add(mapping)
-        print("73855")
         conf = '''server {
     listen 80;
     server_name '''+str(env_name)+''';
@@ -76,16 +63,10 @@ def index():
         proxy_set_header Host $host
     }
 }'''
-        print("73800")
         with open("/etc/nginx/conf.d/"+env_name, "w") as file:
-            print("73801")
             file.write(conf)
-        print("73802")
         subprocess.call(["sudo", "service", "nginx", "restart"])
-        print("73803")
         db.session.commit()
-        print("73806")
-        print("Created Container")
     except Exception as e:
         print(e)
         return {'status':False}
