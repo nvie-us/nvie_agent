@@ -64,15 +64,15 @@ def index():
         mapping = ContainerPortMapping(env_name = env_name, container = container.id, port = port, old_port = old_port)
         db.session.add(mapping)
         conf = '''
-        server {
-            listen 80;
-            server_name ${env_name};
+server {
+    listen 80;
+    server_name ${env_name};
 
-            location / {
-                proxy_pass http://localhost:${port};
-                proxy_set_header Host $host
-            }
-        }'''
+    location / {
+        proxy_pass http://localhost:${port};
+        proxy_set_header Host $host
+    }
+}'''
         with open("/etc/nginx/conf.d/"+env_name, "w") as file:
             file.write(conf)
         subprocess.call(["sudo", "service", "nginx", "restart"])
