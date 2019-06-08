@@ -8,9 +8,9 @@ import os
 from urllib.parse import urlparse
 
 app = FlaskAPI(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/aditya/Projects/nvie_agent/nvie.agent'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/aditya/Projects/nvie_agent/nvie.agent'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/ubuntu/nvie_agent/nvie.agent'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/ubuntu/nvie_agent/nvie.agent'
 client = docker.from_env()
 db = SQLAlchemy(app)
 
@@ -47,8 +47,8 @@ def index():
         path = ""
         if uri_validator(params['env_name']) and len(params['env_name'].split(".")) == 5:
             print("HERE5")
-            # path = "/home/ubuntu/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]
-            path = "/Users/aditya/Projects/nvie_agent/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]
+            path = "/home/ubuntu/storage/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]
+            # path = "/Users/aditya/Projects/nvie_agent/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]
             print(path)
             try:
                 os.mkdir(path,0o777)
