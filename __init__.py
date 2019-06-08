@@ -6,9 +6,9 @@ import random
 from flask_sqlalchemy import SQLAlchemy
 
 app = FlaskAPI(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/aditya/Projects/nvie_agent/nvie.agent'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/aditya/Projects/nvie_agent/nvie.agent'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///home/ubunut/nvie.agent'
 client = docker.from_env()
 db = SQLAlchemy(app)
 
@@ -75,11 +75,14 @@ def running():
     running_containers = []
     for i in containers:
         mapping_list = ContainerPortMapping.query.filter_by(container = i.id).first()
+        env_name = ""
+        if len(mapping_list) != 0:
+            env_name = mapping_list.env_name
         running_containers.append({'container_name':i.name, 'container_id':i.id, "image_name":i.image.tags[0], 'env_name':mapping_list.env_name})
     # container.stop()
     return {'status':True, 'running':running_containers}
 
 if __name__=='__main__':
     db.create_all()
-    app.run(debug = True)
+    app.run(debug = True,host = '0.0.0.0')
 
