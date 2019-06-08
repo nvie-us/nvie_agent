@@ -46,8 +46,8 @@ def index():
             # path = "/Users/aditya/Projects/nvie_agent/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]
             try:
                 os.mkdir(path)
-                subprocess.call(['sudo','chmod', '-R', "777", path])
                 subprocess.call(['git','clone',params['gh_repo'], path])
+                subprocess.call(['sudo','chmod', '-R', "777", path])
             except FileExistsError as e1:
                 print(e1)
         else:
