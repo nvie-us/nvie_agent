@@ -47,6 +47,7 @@ def index():
             try:
                 os.mkdir(path)
                 subprocess.call(['sudo','chmod', '-R', "777", path])
+                subprocess.call(['git','clone',params['gh_repo'], path])
             except FileExistsError as e1:
                 print(e1)
         else:
