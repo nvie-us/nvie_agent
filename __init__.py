@@ -51,7 +51,7 @@ def index():
                 print(e1)
         else:
             return {'status':False, "desc":"Env Name not a valid env URL"}
-        container = client.containers.run(params['image_name'], detach = True, ports = {str(port)+"/tcp":params['port']}, volumes= {str(path):{'bind': '/home/nvie', 'mode': 'rw'}})
+        container = client.containers.run(params['image_name'], detach = True, ports = {str(params['port'])+"/tcp":port}, volumes= {str(path):{'bind': '/home/nvie', 'mode': 'rw'}})
         mapping = ContainerPortMapping(env_name = env_name, container = container.id, port = port, old_port = old_port)
         db.session.add(mapping)
         conf = '''server {
