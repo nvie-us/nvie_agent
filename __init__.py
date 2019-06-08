@@ -51,7 +51,7 @@ def index():
                 print(e1)
         else:
             return {'status':False, "desc":"Env Name not a valid env URL"}
-        container = client.containers.run(params['image_name'], detach = True, ports = {str(port)+"/tcp":params['port']}, volumes= {str(path):{'bind': '/home/nvie', 'mode': 'rw'}}, stdin_open = True, tty = True)
+        container = client.containers.run(params['image_name'], detach = True, ports = {str(port):params['port']}, volumes= {str(path):{'bind': '/home/nvie', 'mode': 'rw'}}, stdin_open = True, tty = True)
         mapping = ContainerPortMapping(env_name = env_name, container = container.id, port = port, old_port = old_port)
         db.session.add(mapping)
         conf = '''server {
@@ -60,7 +60,6 @@ def index():
 
     location / {
         proxy_pass http://localhost:'''+str(port)+''';
-        proxy_set_header Host $host
     }
 }'''
         with open("/etc/nginx/conf.d/"+env_name+".conf", "w") as file:
