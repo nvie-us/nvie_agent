@@ -5,6 +5,7 @@ import sqlite3
 import random
 from flask_sqlalchemy import SQLAlchemy
 import os
+import subprocess
 from urllib.parse import urlparse
 
 app = FlaskAPI(__name__)
@@ -29,6 +30,7 @@ class ContainerPortMapping(db.Model):
 
 @app.route('/spawn', methods=['POST'])
 def index():
+    
     params = request.data
     print(params)
     port_list = ContainerPortMapping.query.with_entities(ContainerPortMapping.port).all()
@@ -47,11 +49,12 @@ def index():
         path = ""
         if uri_validator(params['env_name']) and len(params['env_name'].split(".")) == 5:
             print("HERE5")
-            path = "/home/ubuntu/storage/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]
+            path = "/home/ubuntu/storage/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]+"-"+params['env_name'].split(".")[2]
             # path = "/Users/aditya/Projects/nvie_agent/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]
             print(path)
             try:
-                os.mkdir(path,0o777)
+                os.mkdir(path)
+                subprocess.call(['sudo','chmod', '-R', "777", path])
             except FileExistsError as e1:
                 print(e1)
             print('HERE?SDAS')
@@ -60,6 +63,19 @@ def index():
         container = client.containers.run(params['image_name'], detach = True, ports = {str(params['port'])+"/tcp":port}, volumes= {str(path):{'bind': '/home/nvie', 'mode': 'rw'}})
         mapping = ContainerPortMapping(env_name = env_name, container = container.id, port = port, old_port = old_port)
         db.session.add(mapping)
+        conf = '''
+        server {
+            listen 80;
+            server_name ${env_name};
+
+            location / {
+                proxy_pass http://localhost:${port};
+                proxy_set_header Host $host
+            }
+        }'''
+        with open("/etc/nginx/conf.d/"+env_name, "w") as file:
+            file.write(conf)
+        subprocess.call(["sudo", "service", "nginx", "restart"])
         db.session.commit()
         print("Created Container")
     except Exception as e:
