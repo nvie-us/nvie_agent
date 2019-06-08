@@ -69,7 +69,7 @@ def index():
         print("73855")
         conf = '''server {
     listen 80;
-    server_name '''+env_name+''';
+    server_name '''+str(env_name)+''';
 
     location / {
         proxy_pass http://localhost:'''+str(port)+''';
