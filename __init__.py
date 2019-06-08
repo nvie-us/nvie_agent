@@ -67,8 +67,7 @@ def index():
         print("73853")
         db.session.add(mapping)
         print("73855")
-        conf = '''
-server {
+        conf = '''server {
     listen 80;
     server_name '''+env_name+''';
 
@@ -77,10 +76,15 @@ server {
         proxy_set_header Host $host
     }
 }'''
+        print("73800")
         with open("/etc/nginx/conf.d/"+env_name, "w") as file:
+            print("73801")
             file.write(conf)
+        print("73802")
         subprocess.call(["sudo", "service", "nginx", "restart"])
+        print("73803")
         db.session.commit()
+        print("73806")
         print("Created Container")
     except Exception as e:
         print(e)
