@@ -4,14 +4,22 @@ import docker
 import sqlite3
 import random
 from flask_sqlalchemy import SQLAlchemy
+import os
+from urllib.parse import urlparse
 
 app = FlaskAPI(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/aditya/Projects/nvie_agent/nvie.agent'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/aditya/Projects/nvie_agent/nvie.agent'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/ubuntu/nvie_agent/nvie.agent'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/ubuntu/nvie_agent/nvie.agent'
 client = docker.from_env()
 db = SQLAlchemy(app)
 
+def uri_validator(x):
+    try:
+        result = urlparse(x)
+        return True
+    except:
+        return False
 class ContainerPortMapping(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     env_name = db.Column(db.String(100), unique=True, nullable=False)
@@ -36,12 +44,26 @@ def index():
         print("Pulling")
         client.images.pull(params['image_name'])
         print("Pulled")
-        container = client.containers.run(params['image_name'], detach = True, ports = {str(params['port'])+"/tcp":port})
+        path = ""
+        if uri_validator(params['env_name']) and len(params['env_name'].split(".")) == 5:
+            print("HERE5")
+            # path = "/home/ubuntu/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]
+            path = "/Users/aditya/Projects/nvie_agent/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]
+            print(path)
+            try:
+                os.mkdir(path,0o777)
+            except FileExistsError as e1:
+                print(e1)
+            print('HERE?SDAS')
+        else:
+            return {'status':False, "desc":"Env Name not a valid env URL"}
+        container = client.containers.run(params['image_name'], detach = True, ports = {str(params['port'])+"/tcp":port}, volumes= {str(path):{'bind': '/home/nvie', 'mode': 'rw'}})
         mapping = ContainerPortMapping(env_name = env_name, container = container.id, port = port, old_port = old_port)
         db.session.add(mapping)
         db.session.commit()
         print("Created Container")
     except Exception as e:
+        print(e)
         return {'status':False}
     return {'status':True,'container_id':container.id, 'container_name':container.name}
 
