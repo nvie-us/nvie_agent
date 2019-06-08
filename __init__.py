@@ -76,7 +76,7 @@ def running():
     for i in containers:
         mapping_list = ContainerPortMapping.query.filter_by(container = i.id).first()
         env_name = ""
-        if len(mapping_list) != 0:
+        if mapping_list:
             env_name = mapping_list.env_name
         running_containers.append({'container_name':i.name, 'container_id':i.id, "image_name":i.image.tags[0], 'env_name':env_name})
     # container.stop()
