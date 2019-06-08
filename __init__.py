@@ -51,7 +51,7 @@ def index():
                 print(e1)
         else:
             return {'status':False, "desc":"Env Name not a valid env URL"}
-        container = client.containers.run(params['image_name'], detach = True, ports = {str(params['port'])+"/tcp":port}, volumes= {str(path):{'bind': '/home/nvie', 'mode': 'rw'}})
+        container = client.containers.run(params['image_name'], detach = True, ports = {str(port)+"/tcp":params['port']}, volumes= {str(path):{'bind': '/home/nvie', 'mode': 'rw'}}, stdin_open = True, tty = True)
         mapping = ContainerPortMapping(env_name = env_name, container = container.id, port = port, old_port = old_port)
         db.session.add(mapping)
         conf = '''server {
@@ -71,7 +71,7 @@ def index():
     except Exception as e:
         print(e)
         return {'status':False}
-        print({'status':True,'container_id':container.id, 'container_name':container.name})
+    print({'status':True,'container_id':container.id, 'container_name':container.name})
     return {'status':True,'container_id':container.id, 'container_name':container.name}
 
 @app.route('/stop', methods=['POST'])
