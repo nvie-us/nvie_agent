@@ -22,6 +22,7 @@ class ContainerPortMapping(db.Model):
 @app.route('/spawn', methods=['POST'])
 def index():
     params = request.data
+    print(params)
     port_list = ContainerPortMapping.query.with_entities(ContainerPortMapping.port).all()
     print(port_list)
     port = random.randrange(10000, 65534)
