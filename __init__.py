@@ -66,10 +66,10 @@ def index():
         conf = '''
 server {
     listen 80;
-    server_name ${env_name};
+    server_name '''+env_name+''';
 
     location / {
-        proxy_pass http://localhost:${port};
+        proxy_pass http://localhost:'''+port+''';
         proxy_set_header Host $host
     }
 }'''
