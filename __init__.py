@@ -39,15 +39,20 @@ def index():
     try:
         old_port = params['port']
         env_name = params['env_name']
+        gh_repo = params['gh_repo']
+        print("Pulling")
         client.images.pull(params['image_name'])
+        print("Pulled")
         path = ""
         if uri_validator(params['env_name']) and len(params['env_name'].split(".")) == 5:
             path = "/home/ubuntu/storage/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]+"-"+params['env_name'].split(".")[2]
+            print(path)
             # path = "/Users/aditya/Projects/nvie_agent/"+params['env_name'].split(".")[0]+"-"+params['env_name'].split(".")[1]
             try:
                 os.mkdir(path)
-                subprocess.call(['git','clone',params['gh_repo'], path])
+                subprocess.call(['git','clone',gh_repo, path])
                 subprocess.call(['sudo','chmod', '-R', "777", path])
+                print("Cloned and permissioned")
             except FileExistsError as e1:
                 print(e1)
         else:
