@@ -30,8 +30,8 @@ class ContainerPortMapping(db.Model):
 
 @app.route('/spawn', methods=['POST'])
 def index():
-    
     params = request.data
+    print(params)
     port_list = ContainerPortMapping.query.with_entities(ContainerPortMapping.port).all()
     port = random.randrange(10000, 65534)
     while port in port_list:
@@ -52,7 +52,9 @@ def index():
                 print(e1)
         else:
             return {'status':False, "desc":"Env Name not a valid env URL"}
+        print("Running Container")
         container = client.containers.run(params['image_name'], detach = True, ports = {str(params['port']):port}, volumes= {str(path):{'bind': '/home/nvie', 'mode': 'rw'}}, stdin_open = True, tty = True)
+        print("Container Run")
         mapping = ContainerPortMapping(env_name = env_name, container = container.id, port = port, old_port = old_port)
         db.session.add(mapping)
         conf = '''server {
