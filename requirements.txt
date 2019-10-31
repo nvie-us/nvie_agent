@@ -17,7 +17,7 @@ itsdangerous==1.1.0
 Jinja2==2.10
 jsonpickle==1.1
 MarkupSafe==1.1.0
-Pillow==5.3.0
+Pillow==6.2.0
 psycopg2==2.7.5
 pyStrich==0.8
 python-digitalocean==1.14.0
